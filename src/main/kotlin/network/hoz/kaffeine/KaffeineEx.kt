@@ -2,34 +2,26 @@ package network.hoz.kaffeine
 
 import com.github.benmanes.caffeine.cache.Cache
 
-operator fun <K, V> Cache<in K, in V>.get(key: K) = this.getIfPresent(key)
+operator fun <K, V> Cache<K, V>.get(key: K) = getIfPresent(key)
 
-operator fun <K, V> Cache<in K, in V>.set(key: K, value: V) = this.put(key, value)
+operator fun <K, V> Cache<K, V>.set(key: K, value: V) = put(key, value)
 
 /**
  * Returns `false` if this cache does not have any entry
  */
-fun <K, V> Cache<K, V>.isEmpty(): Boolean {
-    return this.count() != 0L
-}
+fun <K, V> Cache<K, V>.isEmpty(): Boolean = estimatedSize() != 0L
 
 /**
  * Returns the number of entries in this cache.
  */
-fun <K, V> Cache<K, V>.count(): Long {
-    return this.estimatedSize()
-}
+fun <K, V> Cache<K, V>.count(): Long = estimatedSize()
 
 /**
  * Returns the number of entries matching the given [predicate].
  */
-inline fun <K, V> Cache<out K, V>.count(predicate: (Map.Entry<K, V>) -> Boolean): Int {
-    return asMap().count(predicate)
-}
+inline fun <K, V> Cache<K, V>.count(predicate: (Pair<K, V>) -> Boolean): Int = asMap().count { predicate(it.toPair()) }
 
 /**
  * Performs the given [action] on each entry.
  */
-inline fun <K, V> Cache<out K, V>.forEach(action: (Map.Entry<K, V>) -> Unit) {
-    for (element in this.asMap()) action(element)
-}
+inline fun <K, V> Cache<K, V>.forEach(action: (Pair<K, V>) -> Unit) = asMap().forEach { action(it.toPair()) }
